@@ -2,59 +2,54 @@ server:
   port: 8082
 
 spring:
+  application:
+    name: DELIVERY-SERVICE
+
   datasource:
-    url: jdbc:mysql://localhost:3306/delivery_db?createDatabaseIfNotExist=true
+    url: jdbc:mysql://localhost:3306/delivery_db
     username: root
-    password: Ritika@123
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    password: root
+
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
 
+# EUREKA
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+
   instance:
     prefer-ip-address: true
+    ip-address: 127.0.0.1
+    instance-id: ${spring.application.name}:${server.port}
 
-# Actuator
+# ACTUATOR
 management:
   endpoints:
     web:
       exposure:
-        include: health, info, metrics, circuitbreakers
+        include: "*"
+
   endpoint:
     health:
       show-details: always
-  health:
-    circuitbreakers:
-      enabled: true
-  # Zipkin
+
   tracing:
     sampling:
       probability: 1.0
-  zipkin:
-    tracing:
-      endpoint: http://localhost:9411/api/v2/spans
 
-# Resilience4j
+# ZIPKIN
+spring.zipkin.base-url: http://localhost:9411
+
+# CIRCUIT BREAKER
 resilience4j:
   circuitbreaker:
     instances:
       trackingService:
-        slidingWindowSize: 10
+        registerHealthIndicator: true
+        slidingWindowSize: 5
         failureRateThreshold: 50
         waitDurationInOpenState: 10s
-        permittedNumberOfCallsInHalfOpenState: 3
-        registerHealthIndicator: true
-  timelimiter:
-    instances:
-      trackingService:
-        timeoutDuration: 3s
-  retry:
-    instances:
-      trackingService:
-        maxAttempts: 3
-        waitDuration: 2s
