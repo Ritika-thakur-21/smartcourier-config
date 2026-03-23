@@ -4,6 +4,7 @@ server:
 spring:
   application:
     name: api-gateway
+
   cloud:
     gateway:
       routes:
@@ -24,7 +25,7 @@ spring:
           filters:
             - RewritePath=/gateway/deliveries(?<segment>/?.*), /deliveries${segment}
 
-        # Delivery Service — root path (no trailing slash)
+        # Delivery Service — root path
         - id: delivery-service-root
           uri: lb://DELIVERY-SERVICE
           predicates:
@@ -70,14 +71,17 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
     register-with-eureka: true
     fetch-registry: true
+
   instance:
     prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}   # ✅ FIX ADDED
 
 management:
   endpoints:
     web:
       exposure:
         include: "*"
+
   endpoint:
     health:
       show-details: always
