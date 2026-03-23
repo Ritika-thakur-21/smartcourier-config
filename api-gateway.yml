@@ -19,7 +19,7 @@ spring:
           predicates:
             - Path=/gateway/deliveries/**
           filters:
-            - RewritePath=/gateway/deliveries/(?<segment>.*), /deliveries/${segment}
+            - RewritePath=/gateway/deliveries(?<segment>/?.*), /deliveries${segment}
             - name: CircuitBreaker
               args:
                 name: deliveryCircuitBreaker
@@ -30,7 +30,7 @@ spring:
           predicates:
             - Path=/gateway/tracking/**
           filters:
-            - RewritePath=/gateway/tracking/(?<segment>.*), /tracking/${segment}
+            - RewritePath=/gateway/tracking(?<segment>/?.*), /tracking${segment}
             - name: CircuitBreaker
               args:
                 name: trackingCircuitBreaker
@@ -41,7 +41,7 @@ spring:
           predicates:
             - Path=/gateway/admin/**
           filters:
-            - RewritePath=/gateway/admin/(?<segment>.*), /admin/${segment}
+            - RewritePath=/gateway/admin(?<segment>/?.*), /admin${segment}
 
 eureka:
   client:
@@ -51,7 +51,7 @@ eureka:
     fetch-registry: true
   instance:
     prefer-ip-address: true
-    instance-id: ${spring.application.name}:${server.port}  # ← shows port in Eureka
+    instance-id: ${spring.application.name}:${server.port}
 
 resilience4j:
   circuitbreaker:
