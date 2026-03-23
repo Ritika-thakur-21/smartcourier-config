@@ -4,11 +4,11 @@ server:
 spring:
   application:
     name: api-gateway
-  config:
-    import: optional:configserver:http://localhost:8888
   cloud:
     gateway:
       routes:
+
+        # Auth Service
         - id: auth-service
           uri: lb://AUTH-SERVICE
           predicates:
@@ -16,26 +16,53 @@ spring:
           filters:
             - RewritePath=/gateway/auth(?<segment>/?.*), /auth${segment}
 
-        - id: delivery-service
+        # Delivery Service — with sub path
+        - id: delivery-service-path
           uri: lb://DELIVERY-SERVICE
           predicates:
             - Path=/gateway/deliveries/**
           filters:
             - RewritePath=/gateway/deliveries(?<segment>/?.*), /deliveries${segment}
 
-        - id: tracking-service
+        # Delivery Service — root path (no trailing slash)
+        - id: delivery-service-root
+          uri: lb://DELIVERY-SERVICE
+          predicates:
+            - Path=/gateway/deliveries
+          filters:
+            - RewritePath=/gateway/deliveries, /deliveries
+
+        # Tracking Service — with sub path
+        - id: tracking-service-path
           uri: lb://TRACKING-SERVICE
           predicates:
             - Path=/gateway/tracking/**
           filters:
             - RewritePath=/gateway/tracking(?<segment>/?.*), /tracking${segment}
 
-        - id: admin-service
+        # Tracking Service — root path
+        - id: tracking-service-root
+          uri: lb://TRACKING-SERVICE
+          predicates:
+            - Path=/gateway/tracking
+          filters:
+            - RewritePath=/gateway/tracking, /tracking
+
+        # Admin Service — with sub path
+        - id: admin-service-path
           uri: lb://ADMIN-SERVICE
           predicates:
             - Path=/gateway/admin/**
           filters:
             - RewritePath=/gateway/admin(?<segment>/?.*), /admin${segment}
+
+        # Admin Service — root path
+        - id: admin-service-root
+          uri: lb://ADMIN-SERVICE
+          predicates:
+            - Path=/gateway/admin
+          filters:
+            - RewritePath=/gateway/admin, /admin
 
 eureka:
   client:
