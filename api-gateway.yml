@@ -2,6 +2,8 @@ server:
   port: 8080
 
 spring:
+  application:
+    name: api-gateway
   cloud:
     gateway:
       routes:
@@ -45,10 +47,12 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
   instance:
     prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}  # ← shows port in Eureka
 
-# Resilience4j - Circuit Breaker for Gateway
 resilience4j:
   circuitbreaker:
     instances:
@@ -71,7 +75,6 @@ resilience4j:
       trackingCircuitBreaker:
         timeoutDuration: 3s
 
-# Actuator
 management:
   endpoints:
     web:
@@ -83,7 +86,6 @@ management:
   health:
     circuitbreakers:
       enabled: true
-  # Zipkin
   tracing:
     sampling:
       probability: 1.0
