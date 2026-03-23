@@ -12,10 +12,13 @@ spring:
     enabled: true
 
   cloud:
+    inetutils:
+      default-hostname: localhost
+      default-ip-address: 127.0.0.1
+
     gateway:
       routes:
 
-        # AUTH SERVICE
         - id: auth-service
           uri: lb://AUTH-SERVICE
           predicates:
@@ -23,7 +26,6 @@ spring:
           filters:
             - RewritePath=/gateway/auth(?<segment>/?.*), /auth${segment}
 
-        # DELIVERY SERVICE
         - id: delivery-service
           uri: lb://DELIVERY-SERVICE
           predicates:
@@ -31,7 +33,6 @@ spring:
           filters:
             - RewritePath=/gateway/deliveries(?<segment>/?.*), /deliveries${segment}
 
-        # TRACKING SERVICE
         - id: tracking-service
           uri: lb://TRACKING-SERVICE
           predicates:
@@ -39,7 +40,6 @@ spring:
           filters:
             - RewritePath=/gateway/tracking(?<segment>/?.*), /tracking${segment}
 
-        # ADMIN SERVICE
         - id: admin-service
           uri: lb://ADMIN-SERVICE
           predicates:
@@ -47,13 +47,10 @@ spring:
           filters:
             - RewritePath=/gateway/admin(?<segment>/?.*), /admin${segment}
 
-# ✅ EUREKA (FINAL WORKING)
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
-    register-with-eureka: true
-    fetch-registry: true
 
   instance:
     prefer-ip-address: true
@@ -61,7 +58,6 @@ eureka:
     instance-id: ${spring.application.name}:${server.port}
     non-secure-port: ${server.port}
 
-# ✅ ACTUATOR (ALL ENDPOINTS)
 management:
   endpoints:
     web:
@@ -78,7 +74,6 @@ management:
     sampling:
       probability: 1.0
 
-# ✅ INFO (VISIBLE NOW)
 info:
   app:
     name: API Gateway
