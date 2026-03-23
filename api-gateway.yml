@@ -47,7 +47,7 @@ spring:
           filters:
             - RewritePath=/gateway/admin(?<segment>/?.*), /admin${segment}
 
-# ✅ EUREKA (FINAL FIX)
+# ✅ EUREKA (FINAL WORKING)
 eureka:
   client:
     service-url:
@@ -56,12 +56,12 @@ eureka:
     fetch-registry: true
 
   instance:
-    hostname: localhost
-    prefer-ip-address: false
-    instance-id: api-gateway:8080
-    non-secure-port: 8080
+    prefer-ip-address: true
+    ip-address: 127.0.0.1
+    instance-id: ${spring.application.name}:${server.port}
+    non-secure-port: ${server.port}
 
-# ✅ ACTUATOR + INFO (FIXED)
+# ✅ ACTUATOR (ALL ENDPOINTS)
 management:
   endpoints:
     web:
@@ -74,15 +74,11 @@ management:
     info:
       enabled: true
 
-  info:
-    env:
-      enabled: true
-
   tracing:
     sampling:
       probability: 1.0
 
-# ✅ CUSTOM INFO (VISIBLE NOW)
+# ✅ INFO (VISIBLE NOW)
 info:
   app:
     name: API Gateway
