@@ -9,6 +9,7 @@ spring:
     gateway:
       routes:
 
+        # AUTH SERVICE
         - id: auth-service
           uri: lb://AUTH-SERVICE
           predicates:
@@ -16,47 +17,87 @@ spring:
           filters:
             - RewritePath=/gateway/auth(?<segment>/?.*), /auth${segment}
 
-        - id: delivery-service
+        # DELIVERY SERVICE (sub path)
+        - id: delivery-service-path
           uri: lb://DELIVERY-SERVICE
           predicates:
             - Path=/gateway/deliveries/**
           filters:
             - RewritePath=/gateway/deliveries(?<segment>/?.*), /deliveries${segment}
 
-        - id: tracking-service
+        # DELIVERY SERVICE (root)
+        - id: delivery-service-root
+          uri: lb://DELIVERY-SERVICE
+          predicates:
+            - Path=/gateway/deliveries
+          filters:
+            - RewritePath=/gateway/deliveries, /deliveries
+
+        # TRACKING SERVICE (sub path)
+        - id: tracking-service-path
           uri: lb://TRACKING-SERVICE
           predicates:
             - Path=/gateway/tracking/**
           filters:
             - RewritePath=/gateway/tracking(?<segment>/?.*), /tracking${segment}
 
-        - id: admin-service
+        # TRACKING SERVICE (root)
+        - id: tracking-service-root
+          uri: lb://TRACKING-SERVICE
+          predicates:
+            - Path=/gateway/tracking
+          filters:
+            - RewritePath=/gateway/tracking, /tracking
+
+        # ADMIN SERVICE (sub path)
+        - id: admin-service-path
           uri: lb://ADMIN-SERVICE
           predicates:
             - Path=/gateway/admin/**
           filters:
             - RewritePath=/gateway/admin(?<segment>/?.*), /admin${segment}
 
+        # ADMIN SERVICE (root)
+        - id: admin-service-root
+          uri: lb://ADMIN-SERVICE
+          predicates:
+            - Path=/gateway/admin
+          filters:
+            - RewritePath=/gateway/admin, /admin
+
+# ✅ EUREKA CONFIG (FIXED FOR PORT DISPLAY)
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
 
   instance:
-    prefer-ip-address: true
-    ip-address: 127.0.0.1
+    hostname: localhost
+    prefer-ip-address: false
     instance-id: ${spring.application.name}:${server.port}
+    non-secure-port: ${server.port}
 
+# ✅ ACTUATOR
 management:
   endpoints:
     web:
       exposure:
         include: "*"
 
+  endpoint:
+    health:
+      show-details: always
+
   tracing:
     sampling:
       probability: 1.0
 
-# ZIPKIN
-spring.zipkin.base-url: http://localhost:9411
-spring.sleuth.enabled: true
+# ✅ ZIPKIN (Distributed Tracing)
+spring:
+  zipkin:
+    base-url: http://localhost:9411
+
+  sleuth:
+    enabled: true
