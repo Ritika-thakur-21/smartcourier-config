@@ -23,59 +23,37 @@ spring:
           filters:
             - RewritePath=/gateway/auth(?<segment>/?.*), /auth${segment}
 
-        # DELIVERY SERVICE (sub path)
-        - id: delivery-service-path
+        # DELIVERY SERVICE
+        - id: delivery-service
           uri: lb://DELIVERY-SERVICE
           predicates:
             - Path=/gateway/deliveries/**
           filters:
             - RewritePath=/gateway/deliveries(?<segment>/?.*), /deliveries${segment}
 
-        # DELIVERY SERVICE (root)
-        - id: delivery-service-root
-          uri: lb://DELIVERY-SERVICE
-          predicates:
-            - Path=/gateway/deliveries
-          filters:
-            - RewritePath=/gateway/deliveries, /deliveries
-
-        # TRACKING SERVICE (sub path)
-        - id: tracking-service-path
+        # TRACKING SERVICE
+        - id: tracking-service
           uri: lb://TRACKING-SERVICE
           predicates:
             - Path=/gateway/tracking/**
           filters:
             - RewritePath=/gateway/tracking(?<segment>/?.*), /tracking${segment}
 
-        # TRACKING SERVICE (root)
-        - id: tracking-service-root
-          uri: lb://TRACKING-SERVICE
-          predicates:
-            - Path=/gateway/tracking
-          filters:
-            - RewritePath=/gateway/tracking, /tracking
-
-        # ADMIN SERVICE (sub path)
-        - id: admin-service-path
+        # ADMIN SERVICE
+        - id: admin-service
           uri: lb://ADMIN-SERVICE
           predicates:
             - Path=/gateway/admin/**
           filters:
             - RewritePath=/gateway/admin(?<segment>/?.*), /admin${segment}
 
-        # ADMIN SERVICE (root)
-        - id: admin-service-root
-          uri: lb://ADMIN-SERVICE
-          predicates:
-            - Path=/gateway/admin
-          filters:
-            - RewritePath=/gateway/admin, /admin
-
 # ✅ EUREKA (FINAL FIX)
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
 
   instance:
     hostname: localhost
@@ -83,7 +61,7 @@ eureka:
     instance-id: api-gateway:8080
     non-secure-port: 8080
 
-# ✅ ACTUATOR + INFO
+# ✅ ACTUATOR + INFO (FIXED)
 management:
   endpoints:
     web:
@@ -93,12 +71,18 @@ management:
   endpoint:
     health:
       show-details: always
+    info:
+      enabled: true
+
+  info:
+    env:
+      enabled: true
 
   tracing:
     sampling:
       probability: 1.0
 
-# ✅ CUSTOM INFO (THIS FIXES /info)
+# ✅ CUSTOM INFO (VISIBLE NOW)
 info:
   app:
     name: API Gateway
