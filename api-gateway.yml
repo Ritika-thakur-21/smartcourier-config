@@ -1,0 +1,92 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/gateway/auth/**
+          filters:
+            - RewritePath=/gateway/auth/(?<segment>.*), /auth/${segment}
+
+        - id: delivery-service
+          uri: lb://delivery-service
+          predicates:
+            - Path=/gateway/deliveries/**
+          filters:
+            - RewritePath=/gateway/deliveries/(?<segment>.*), /deliveries/${segment}
+            - name: CircuitBreaker
+              args:
+                name: deliveryCircuitBreaker
+                fallbackUri: forward:/fallback/delivery
+
+        - id: tracking-service
+          uri: lb://tracking-service
+          predicates:
+            - Path=/gateway/tracking/**
+          filters:
+            - RewritePath=/gateway/tracking/(?<segment>.*), /tracking/${segment}
+            - name: CircuitBreaker
+              args:
+                name: trackingCircuitBreaker
+                fallbackUri: forward:/fallback/tracking
+
+        - id: admin-service
+          uri: lb://admin-service
+          predicates:
+            - Path=/gateway/admin/**
+          filters:
+            - RewritePath=/gateway/admin/(?<segment>.*), /admin/${segment}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+# Resilience4j - Circuit Breaker for Gateway
+resilience4j:
+  circuitbreaker:
+    instances:
+      deliveryCircuitBreaker:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        registerHealthIndicator: true
+      trackingCircuitBreaker:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 3
+        registerHealthIndicator: true
+  timelimiter:
+    instances:
+      deliveryCircuitBreaker:
+        timeoutDuration: 3s
+      trackingCircuitBreaker:
+        timeoutDuration: 3s
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, circuitbreakers
+  endpoint:
+    health:
+      show-details: always
+  health:
+    circuitbreakers:
+      enabled: true
+  # Zipkin
+  tracing:
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
