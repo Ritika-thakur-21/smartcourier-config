@@ -2,6 +2,8 @@ server:
   port: 8084
 
 spring:
+  application:
+    name: admin-service
   datasource:
     url: jdbc:mysql://localhost:3306/admin_db?createDatabaseIfNotExist=true
     username: root
@@ -11,6 +13,10 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true          # ← THIS is missing — enables fallback
 
 eureka:
   client:
@@ -19,7 +25,6 @@ eureka:
   instance:
     prefer-ip-address: true
 
-# Actuator
 management:
   endpoints:
     web:
@@ -31,7 +36,6 @@ management:
   health:
     circuitbreakers:
       enabled: true
-  # Zipkin
   tracing:
     sampling:
       probability: 1.0
@@ -39,17 +43,16 @@ management:
     tracing:
       endpoint: http://localhost:9411/api/v2/spans
 
-# Resilience4j
 resilience4j:
   circuitbreaker:
     instances:
-      deliveryService:
+      delivery-service:          # ← must match Feign client name exactly
         slidingWindowSize: 10
         failureRateThreshold: 50
         waitDurationInOpenState: 10s
         permittedNumberOfCallsInHalfOpenState: 3
         registerHealthIndicator: true
-      trackingService:
+      tracking-service:          # ← must match Feign client name exactly
         slidingWindowSize: 10
         failureRateThreshold: 50
         waitDurationInOpenState: 10s
@@ -57,15 +60,15 @@ resilience4j:
         registerHealthIndicator: true
   timelimiter:
     instances:
-      deliveryService:
+      delivery-service:
         timeoutDuration: 3s
-      trackingService:
+      tracking-service:
         timeoutDuration: 3s
   retry:
     instances:
-      deliveryService:
+      delivery-service:
         maxAttempts: 3
         waitDuration: 2s
-      trackingService:
+      tracking-service:
         maxAttempts: 3
         waitDuration: 2s
