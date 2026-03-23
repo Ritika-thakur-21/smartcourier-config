@@ -15,6 +15,14 @@ spring:
       ddl-auto: update
     show-sql: true
 
+  zipkin:
+    base-url: http://localhost:9411
+
+# 🔥 VERY IMPORTANT (ADD THIS)
+feign:
+  circuitbreaker:
+    enabled: true
+
 eureka:
   client:
     service-url:
@@ -34,5 +42,3 @@ management:
   tracing:
     sampling:
       probability: 1.0
-
-spring.zipkin.base-url: http://localhost:9411
