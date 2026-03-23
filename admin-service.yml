@@ -3,72 +3,36 @@ server:
 
 spring:
   application:
-    name: admin-service
+    name: ADMIN-SERVICE
+
   datasource:
-    url: jdbc:mysql://localhost:3306/admin_db?createDatabaseIfNotExist=true
+    url: jdbc:mysql://localhost:3306/admin_db
     username: root
     password: Ritika@123
-    driver-class-name: com.mysql.cj.jdbc.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
-  cloud:
-    openfeign:
-      circuitbreaker:
-        enabled: true          # ← THIS is missing — enables fallback
 
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+
   instance:
     prefer-ip-address: true
+    ip-address: 127.0.0.1
+    instance-id: ${spring.application.name}:${server.port}
 
 management:
   endpoints:
     web:
       exposure:
-        include: health, info, metrics, circuitbreakers
-  endpoint:
-    health:
-      show-details: always
-  health:
-    circuitbreakers:
-      enabled: true
+        include: "*"
+
   tracing:
     sampling:
       probability: 1.0
-  zipkin:
-    tracing:
-      endpoint: http://localhost:9411/api/v2/spans
 
-resilience4j:
-  circuitbreaker:
-    instances:
-      delivery-service:          # ← must match Feign client name exactly
-        slidingWindowSize: 10
-        failureRateThreshold: 50
-        waitDurationInOpenState: 10s
-        permittedNumberOfCallsInHalfOpenState: 3
-        registerHealthIndicator: true
-      tracking-service:          # ← must match Feign client name exactly
-        slidingWindowSize: 10
-        failureRateThreshold: 50
-        waitDurationInOpenState: 10s
-        permittedNumberOfCallsInHalfOpenState: 3
-        registerHealthIndicator: true
-  timelimiter:
-    instances:
-      delivery-service:
-        timeoutDuration: 3s
-      tracking-service:
-        timeoutDuration: 3s
-  retry:
-    instances:
-      delivery-service:
-        maxAttempts: 3
-        waitDuration: 2s
-      tracking-service:
-        maxAttempts: 3
-        waitDuration: 2s
+spring.zipkin.base-url: http://localhost:9411
