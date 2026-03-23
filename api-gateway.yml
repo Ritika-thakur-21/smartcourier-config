@@ -4,40 +4,34 @@ server:
 spring:
   application:
     name: api-gateway
+  config:
+    import: optional:configserver:http://localhost:8888
   cloud:
     gateway:
       routes:
         - id: auth-service
-          uri: lb://auth-service
+          uri: lb://AUTH-SERVICE
           predicates:
             - Path=/gateway/auth/**
           filters:
-            - RewritePath=/gateway/auth/(?<segment>.*), /auth/${segment}
+            - RewritePath=/gateway/auth(?<segment>/?.*), /auth${segment}
 
         - id: delivery-service
-          uri: lb://delivery-service
+          uri: lb://DELIVERY-SERVICE
           predicates:
             - Path=/gateway/deliveries/**
           filters:
             - RewritePath=/gateway/deliveries(?<segment>/?.*), /deliveries${segment}
-            - name: CircuitBreaker
-              args:
-                name: deliveryCircuitBreaker
-                fallbackUri: forward:/fallback/delivery
 
         - id: tracking-service
-          uri: lb://tracking-service
+          uri: lb://TRACKING-SERVICE
           predicates:
             - Path=/gateway/tracking/**
           filters:
             - RewritePath=/gateway/tracking(?<segment>/?.*), /tracking${segment}
-            - name: CircuitBreaker
-              args:
-                name: trackingCircuitBreaker
-                fallbackUri: forward:/fallback/tracking
 
         - id: admin-service
-          uri: lb://admin-service
+          uri: lb://ADMIN-SERVICE
           predicates:
             - Path=/gateway/admin/**
           filters:
@@ -51,44 +45,12 @@ eureka:
     fetch-registry: true
   instance:
     prefer-ip-address: true
-    instance-id: ${spring.application.name}:${server.port}
-
-resilience4j:
-  circuitbreaker:
-    instances:
-      deliveryCircuitBreaker:
-        slidingWindowSize: 10
-        failureRateThreshold: 50
-        waitDurationInOpenState: 10s
-        permittedNumberOfCallsInHalfOpenState: 3
-        registerHealthIndicator: true
-      trackingCircuitBreaker:
-        slidingWindowSize: 10
-        failureRateThreshold: 50
-        waitDurationInOpenState: 10s
-        permittedNumberOfCallsInHalfOpenState: 3
-        registerHealthIndicator: true
-  timelimiter:
-    instances:
-      deliveryCircuitBreaker:
-        timeoutDuration: 3s
-      trackingCircuitBreaker:
-        timeoutDuration: 3s
 
 management:
   endpoints:
     web:
       exposure:
-        include: health, info, metrics, circuitbreakers
+        include: "*"
   endpoint:
     health:
       show-details: always
-  health:
-    circuitbreakers:
-      enabled: true
-  tracing:
-    sampling:
-      probability: 1.0
-  zipkin:
-    tracing:
-      endpoint: http://localhost:9411/api/v2/spans
