@@ -9,7 +9,6 @@ spring:
     gateway:
       routes:
 
-        # Auth Service
         - id: auth-service
           uri: lb://AUTH-SERVICE
           predicates:
@@ -17,64 +16,36 @@ spring:
           filters:
             - RewritePath=/gateway/auth(?<segment>/?.*), /auth${segment}
 
-        # Delivery Service — with sub path
-        - id: delivery-service-path
+        - id: delivery-service
           uri: lb://DELIVERY-SERVICE
           predicates:
             - Path=/gateway/deliveries/**
           filters:
             - RewritePath=/gateway/deliveries(?<segment>/?.*), /deliveries${segment}
 
-        # Delivery Service — root path
-        - id: delivery-service-root
-          uri: lb://DELIVERY-SERVICE
-          predicates:
-            - Path=/gateway/deliveries
-          filters:
-            - RewritePath=/gateway/deliveries, /deliveries
-
-        # Tracking Service — with sub path
-        - id: tracking-service-path
+        - id: tracking-service
           uri: lb://TRACKING-SERVICE
           predicates:
             - Path=/gateway/tracking/**
           filters:
             - RewritePath=/gateway/tracking(?<segment>/?.*), /tracking${segment}
 
-        # Tracking Service — root path
-        - id: tracking-service-root
-          uri: lb://TRACKING-SERVICE
-          predicates:
-            - Path=/gateway/tracking
-          filters:
-            - RewritePath=/gateway/tracking, /tracking
-
-        # Admin Service — with sub path
-        - id: admin-service-path
+        - id: admin-service
           uri: lb://ADMIN-SERVICE
           predicates:
             - Path=/gateway/admin/**
           filters:
             - RewritePath=/gateway/admin(?<segment>/?.*), /admin${segment}
 
-        # Admin Service — root path
-        - id: admin-service-root
-          uri: lb://ADMIN-SERVICE
-          predicates:
-            - Path=/gateway/admin
-          filters:
-            - RewritePath=/gateway/admin, /admin
-
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
-    register-with-eureka: true
-    fetch-registry: true
 
   instance:
     prefer-ip-address: true
-    instance-id: ${spring.application.name}:${server.port}   # ✅ FIX ADDED
+    ip-address: 127.0.0.1
+    instance-id: ${spring.application.name}:${server.port}
 
 management:
   endpoints:
@@ -82,6 +53,10 @@ management:
       exposure:
         include: "*"
 
-  endpoint:
-    health:
-      show-details: always
+  tracing:
+    sampling:
+      probability: 1.0
+
+# ZIPKIN
+spring.zipkin.base-url: http://localhost:9411
+spring.sleuth.enabled: true
