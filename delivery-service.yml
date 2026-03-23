@@ -15,7 +15,10 @@ spring:
       ddl-auto: update
     show-sql: true
 
-# EUREKA
+  zipkin:
+    base-url: http://localhost:9411
+
+# ✅ EUREKA
 eureka:
   client:
     service-url:
@@ -26,7 +29,7 @@ eureka:
     ip-address: 127.0.0.1
     instance-id: ${spring.application.name}:${server.port}
 
-# ACTUATOR
+# ✅ ACTUATOR
 management:
   endpoints:
     web:
@@ -41,14 +44,16 @@ management:
     sampling:
       probability: 1.0
 
-# ZIPKIN
-spring.zipkin.base-url: http://localhost:9411
+# ✅ 🔥 MOST IMPORTANT (Feign + Circuit Breaker CONNECT)
+feign:
+  circuitbreaker:
+    enabled: true
 
-# CIRCUIT BREAKER
+# ✅ CIRCUIT BREAKER CONFIG (NAME MUST MATCH)
 resilience4j:
   circuitbreaker:
     instances:
-      trackingService:
+      TRACKING-SERVICE:
         registerHealthIndicator: true
         slidingWindowSize: 5
         failureRateThreshold: 50
