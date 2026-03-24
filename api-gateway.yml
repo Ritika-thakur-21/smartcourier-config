@@ -5,17 +5,7 @@ spring:
   application:
     name: api-gateway
 
-  zipkin:
-    base-url: http://localhost:9411
-
-  sleuth:
-    enabled: true
-
   cloud:
-    inetutils:
-      default-hostname: localhost
-      default-ip-address: 127.0.0.1
-
     gateway:
       routes:
 
@@ -47,35 +37,36 @@ spring:
           filters:
             - RewritePath=/gateway/admin(?<segment>/?.*), /admin${segment}
 
+# ✅ SWAGGER CONFIG (IMPORTANT)
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - name: AUTH-SERVICE
+        url: /gateway/auth/v3/api-docs
+
+      - name: DELIVERY-SERVICE
+        url: /gateway/deliveries/v3/api-docs
+
+      - name: TRACKING-SERVICE
+        url: /gateway/tracking/v3/api-docs
+
+      - name: ADMIN-SERVICE
+        url: /gateway/admin/v3/api-docs
+
+
+# ✅ CORS (avoid swagger blocking)
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+
+
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
-
-  instance:
-    prefer-ip-address: true
-    ip-address: 127.0.0.1
-    instance-id: ${spring.application.name}:${server.port}
-    non-secure-port: ${server.port}
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
-
-  endpoint:
-    health:
-      show-details: always
-    info:
-      enabled: true
-
-  tracing:
-    sampling:
-      probability: 1.0
-
-info:
-  app:
-    name: API Gateway
-    description: Smart Courier API Gateway
-    version: 1.0
