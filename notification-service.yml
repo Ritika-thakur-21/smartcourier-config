@@ -5,23 +5,21 @@ spring:
   application:
     name: NOTIFICATION-SERVICE
 
-  config:
-    import: optional:configserver:http://localhost:8888
-
   rabbitmq:
     host: localhost
     port: 5672
     username: guest
     password: guest
 
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: thakurritika361@gmail.com
-    password: uhvqpnzisghopqvd
-    properties:
-      mail.smtp.auth: true
-      mail.smtp.starttls.enable: true
+  # 🔥 TEMP COMMENT EMAIL (FIRST RUN)
+  # mail:
+  #   host: smtp.gmail.com
+  #   port: 587
+  #   username: thakurritika361@gmail.com
+  #   password: uhvqpnzisghopqvd
+  #   properties:
+  #     mail.smtp.auth: true
+  #     mail.smtp.starttls.enable: true
 
 eureka:
   client:
