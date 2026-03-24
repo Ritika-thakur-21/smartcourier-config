@@ -7,6 +7,7 @@ spring:
 
   cloud:
     gateway:
+
       routes:
 
         - id: auth-service
@@ -14,30 +15,39 @@ spring:
           predicates:
             - Path=/gateway/auth/**
           filters:
-            - RewritePath=/gateway/auth(?<segment>/?.*), /auth${segment}
+            - RewritePath=/gateway/auth(?<segment>/?.*), ${segment}
 
         - id: delivery-service
           uri: lb://DELIVERY-SERVICE
           predicates:
             - Path=/gateway/deliveries/**
           filters:
-            - RewritePath=/gateway/deliveries(?<segment>/?.*), /deliveries${segment}
+            - RewritePath=/gateway/deliveries(?<segment>/?.*), ${segment}
 
         - id: tracking-service
           uri: lb://TRACKING-SERVICE
           predicates:
             - Path=/gateway/tracking/**
           filters:
-            - RewritePath=/gateway/tracking(?<segment>/?.*), /tracking${segment}
+            - RewritePath=/gateway/tracking(?<segment>/?.*), ${segment}
 
         - id: admin-service
           uri: lb://ADMIN-SERVICE
           predicates:
             - Path=/gateway/admin/**
           filters:
-            - RewritePath=/gateway/admin(?<segment>/?.*), /admin${segment}
+            - RewritePath=/gateway/admin(?<segment>/?.*), ${segment}
 
-# ✅ SWAGGER CONFIG (IMPORTANT)
+      # ✅ CORS (same block ke andar hona chahiye)
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+
+
+# ✅ SWAGGER CONFIG
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
@@ -55,17 +65,7 @@ springdoc:
         url: /gateway/admin/v3/api-docs
 
 
-# ✅ CORS (avoid swagger blocking)
-  cloud:
-    gateway:
-      globalcors:
-        corsConfigurations:
-          '[/**]':
-            allowedOrigins: "*"
-            allowedMethods: "*"
-            allowedHeaders: "*"
-
-
+# ✅ EUREKA
 eureka:
   client:
     service-url:
