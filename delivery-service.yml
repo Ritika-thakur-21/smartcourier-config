@@ -15,7 +15,6 @@ spring:
       ddl-auto: update
     show-sql: true
 
-  # RABBITMQ CONFIG ADDED
   rabbitmq:
     host: localhost
     port: 5672
@@ -24,6 +23,13 @@ spring:
 
   zipkin:
     base-url: http://localhost:9411
+
+# SWAGGER CONFIG (IMPORTANT)
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
 
 # EUREKA
 eureka:
@@ -51,12 +57,11 @@ management:
     sampling:
       probability: 1.0
 
-#  FEIGN + CIRCUIT BREAKER
+# FEIGN + CIRCUIT BREAKER
 feign:
   circuitbreaker:
     enabled: true
 
-#  CIRCUIT BREAKER CONFIG
 resilience4j:
   circuitbreaker:
     instances:
