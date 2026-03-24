@@ -45,6 +45,7 @@ spring:
             allowedMethods: "*"
             allowedHeaders: "*"
 
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
@@ -61,11 +62,13 @@ springdoc:
       - name: ADMIN-SERVICE
         url: /gateway/admin/v3/api-docs
 
+
 management:
   endpoints:
     web:
       exposure:
         include: "*"
+
 
 eureka:
   client:
